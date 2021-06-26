@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace stochastic_engine.Models
 {
@@ -9,6 +10,7 @@ namespace stochastic_engine.Models
         public double CreationTime { get; set; }
         public int Priority { get; set; }
         public PetriNet.PetriNet PetriNet { get; set; }
+        public List<EntitySet> InsertedSets { get; } = new List<EntitySet>();
 
         public Entity(string name, Guid id, double creationTime)
         {

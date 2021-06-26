@@ -21,6 +21,13 @@ namespace stochastic_engine.Models
         public int MaxPossibleSize { get; set; }
         public Queue<Entity> Entities { get; set; }
 
+        //Coleta de Estatísticas
+
+        private readonly List<int> recordedSizes = new List<int>();
+        private readonly Dictionary<Guid, double> recordedTimesInSet = new Dictionary<Guid, double>();
+        private bool log = false;
+        private double timeGap = 0;
+
         public EntitySet(string name, Mode mode, int maxPossibleSize, Guid id)
         {
             Name = name;
@@ -32,12 +39,20 @@ namespace stochastic_engine.Models
 
         public void Insert(Entity entity)
         {
-            Entities.Enqueue(entity);
+            if (!IsFull())
+            {
+                Entities.Enqueue(entity);
+                recordedSizes.Add(Entities.Count);
+                recordedTimesInSet.Add(Id, 5.4);
+            }
         }
 
         public Entity Remove()
         {
-            return Entities.Dequeue();
+            Entity removedEntity = Entities.Dequeue();
+            recordedSizes.Add(Entities.Count);
+
+            return removedEntity;
         }
 
         public Entity RemoveById(Guid id)
@@ -60,6 +75,40 @@ namespace stochastic_engine.Models
         public Entity FindEntity(Guid id)
         {
             return Entities.Where(entity => entity.Id == id)?.FirstOrDefault();
+        }
+
+        //Métodos de Coletas de Estatísticas
+
+        public double AverageSize()
+        {
+            int sizeAccumulator = recordedSizes.Aggregate(0, (acc, x) => acc + x);
+
+            return sizeAccumulator / recordedSizes.Count;
+        }
+
+        public double AverageTimeInSet()
+        {
+            double timeAccumulator = 0;
+
+            foreach(Entity entity in  Entities)
+            {
+                timeAccumulator += entity.GetTimeSinceCreation();
+            }
+
+            double averageTimeInSet = timeAccumulator / Entities.Count;
+
+            return averageTimeInSet;
+        }
+
+        public void StartLog(double timeGap)
+        {
+            this.timeGap = timeGap;
+            log = true;
+        }
+
+        public void StopLog()
+        {
+            log = false;
         }
     }
 }
