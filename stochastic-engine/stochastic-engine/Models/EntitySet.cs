@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace stochastic_engine.Models
 {
@@ -12,6 +11,7 @@ namespace stochastic_engine.Models
         LIFO = 2,
         PRIORITY_BASED = 3
     }
+
     public class EntitySet
     {
         public string Name { get; }
@@ -24,9 +24,13 @@ namespace stochastic_engine.Models
         //Coleta de Estatísticas
 
         private readonly List<int> recordedSizes = new List<int>();
-        private readonly Dictionary<Guid, double> recordedTimesInSet = new Dictionary<Guid, double>();
+        private readonly List<double> recordedTimesInSet = new List<double>();
         private bool log = false;
         private double timeGap = 0;
+        private double lastLogTime = 0;
+        private double MaxTimeInSet { get; set; } = 0;
+
+        private Dictionary<double, int> Log { get; } = new Dictionary<double, int>();
 
         public EntitySet(string name, Mode mode, int maxPossibleSize, Guid id)
         {
@@ -42,15 +46,38 @@ namespace stochastic_engine.Models
             if (!IsFull())
             {
                 Entities.Enqueue(entity);
+            }
+
+            double now = DateTime.Now.ToOADate();
+
+            if (log && (now - lastLogTime >= timeGap))
+            {
                 recordedSizes.Add(Entities.Count);
-                recordedTimesInSet.Add(Id, 5.4);
+                lastLogTime = now;
+                Log.Add(now, Entities.Count);
             }
         }
 
         public Entity Remove()
         {
             Entity removedEntity = Entities.Dequeue();
-            recordedSizes.Add(Entities.Count);
+
+            double now = DateTime.Now.ToOADate();
+
+            if (log && (now - lastLogTime >= timeGap))
+            {
+                int size = Entities.Count;
+
+                double timeSinceEntrance = removedEntity.GetTimeSinceCreation();
+
+                recordedTimesInSet.Add(timeSinceEntrance);
+                recordedSizes.Add(size);
+
+                Log.Add(now, size);
+
+                if (timeSinceEntrance > MaxTimeInSet)
+                    MaxTimeInSet = timeSinceEntrance;
+            }
 
             return removedEntity;
         }
@@ -59,6 +86,7 @@ namespace stochastic_engine.Models
         {
             Entity entityToBeRemoved = Entities.Where(entity => entity.Id == id)?.FirstOrDefault();
             Entities = new Queue<Entity>(Entities.Where(x => entityToBeRemoved != x));
+            recordedSizes.Add(Entities.Count);
             return entityToBeRemoved;
         }
 
@@ -88,16 +116,9 @@ namespace stochastic_engine.Models
 
         public double AverageTimeInSet()
         {
-            double timeAccumulator = 0;
+            double timeAccumulator = recordedTimesInSet.Aggregate(0.0, (acc, x) => acc + x);
 
-            foreach(Entity entity in  Entities)
-            {
-                timeAccumulator += entity.GetTimeSinceCreation();
-            }
-
-            double averageTimeInSet = timeAccumulator / Entities.Count;
-
-            return averageTimeInSet;
+            return timeAccumulator / recordedTimesInSet.Count;
         }
 
         public void StartLog(double timeGap)

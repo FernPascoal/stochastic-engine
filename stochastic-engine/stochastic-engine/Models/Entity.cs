@@ -9,7 +9,7 @@ namespace stochastic_engine.Models
         public Guid Id { get; }
         public double CreationTime { get; set; }
         public int Priority { get; set; }
-        public PetriNet.PetriNet PetriNet { get; set; }
+        //public PetriNet.PetriNet PetriNet { get; set; }
         public List<EntitySet> InsertedSets { get; } = new List<EntitySet>();
 
         public Entity(string name, Guid id, double creationTime)
@@ -20,14 +20,14 @@ namespace stochastic_engine.Models
             Priority = -1;
         }
 
-        public Entity(string name, Guid id, double creationTime, PetriNet.PetriNet petriNet)
+        /*public Entity(string name, Guid id, double creationTime, PetriNet.PetriNet petriNet)
         {
             Name = name;
             Id = id;
             CreationTime = creationTime;
             Priority = -1;
             PetriNet = petriNet;
-        }
+        }*/
 
         public double GetTimeSinceCreation()
         {
