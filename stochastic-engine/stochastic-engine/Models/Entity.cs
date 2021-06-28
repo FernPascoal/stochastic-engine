@@ -10,7 +10,6 @@ namespace stochastic_engine.Models
         public string Name { get; }
         public Guid Id { get; set; }
         public double CreationTime { get; set; }
-        public double DeleteTime { get; set; }
         public int Priority { get; set; }
         public PetriNet PetriNet { get; set; }
         public Scheduler Scheduler { get; set; }
@@ -37,7 +36,7 @@ namespace stochastic_engine.Models
 
         public double GetTimeSinceCreation()
         {
-            double now = DateTime.Now.ToOADate();
+            double now = Scheduler.Time;
             double timeSinceCreation = now - CreationTime;
             return timeSinceCreation;
         }

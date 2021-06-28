@@ -192,7 +192,7 @@ namespace PetriNetProject
             DataString = DataString + dados + "\n";
         }
 
-        public PetriNet CriarPetriNet()
+        public static PetriNet CriarPetriNet()
         {
             var petri = new PetriNet();
 

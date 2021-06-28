@@ -11,7 +11,6 @@ namespace stochastic_engine.Models
         public Guid Id { get; set; }
         public Scheduler Scheduler { get; set; }
         private int availableQuantity;
-        private int startQuantity;
 
         //Coleta de Estatísticas
         private readonly List<int> recordedQuantities = new List<int>();
