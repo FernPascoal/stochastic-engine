@@ -1,4 +1,5 @@
-﻿using System;
+﻿using stochastic_engine.Engine;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -6,32 +7,44 @@ namespace stochastic_engine.Models
 {
     public class Resource
     {
-        private readonly string name;
+        public string Name { get; }
         public Guid Id { get; set; }
-        private int quantity;
+        public Scheduler Scheduler { get; set; }
+        private int availableQuantity;
+        private int startQuantity;
 
         //Coleta de Estatísticas
         private readonly List<int> recordedQuantities = new List<int>();
         private double allocatedAt = 0;
-        private double timeAllocatedAccumulator = 0;
+        private double timeAllocatedAccumulator;
 
-        public Resource(string name, int quantity, Guid id)
+        public Resource(string name, int quantity)
         {
-            this.name = name;
-            this.quantity = quantity;
-            Id = id;
+            Name = name;
+            this.availableQuantity = quantity;
+        }
+
+        public Resource(String name, int quantity, Scheduler scheduler)
+        {
+            Name = name;
+            availableQuantity = quantity;
+            startQuantity = quantity;
+            Scheduler = scheduler;
+            timeAllocatedAccumulator = 0;
         }
 
         public bool Allocate(int quantity)
         {
-            if (this.quantity >= quantity)
+            if (this.availableQuantity >= quantity)
             {
-                double now = DateTime.Now.ToOADate();
+                double now = Scheduler.Time;
 
-                this.quantity -= quantity;
+                this.availableQuantity -= quantity;
                 recordedQuantities.Add(quantity);
 
                 allocatedAt = now;
+
+                Console.WriteLine("Allocated " + quantity + " of " + Name);
 
                 return true;
             }
@@ -40,9 +53,11 @@ namespace stochastic_engine.Models
 
         public void Release(int quantity)
         {
-            double now = DateTime.Now.ToOADate();
+            double now = Scheduler.Time;
 
-            this.quantity += quantity;
+            this.availableQuantity += quantity;
+
+            Console.WriteLine("Released " + quantity + " of " + Name);
 
             recordedQuantities.Add(quantity);
             timeAllocatedAccumulator += allocatedAt - now;
@@ -50,15 +65,23 @@ namespace stochastic_engine.Models
 
         public double AverageAllocation()
         {
+            double now = Scheduler.Time;
+
             int quantityAccumulator = recordedQuantities.Aggregate(0, (acc, x) => acc + x);
 
-            return quantityAccumulator / recordedQuantities.Count;
+            Console.WriteLine("Resource " + Name + " AverageAllocation " + quantityAccumulator);
+
+            return quantityAccumulator / now;
         }
 
         public double AllocationRate()
         {
-            double now = DateTime.Now.ToOADate();
-            return timeAllocatedAccumulator / now;
+            double now = Scheduler.Time;
+            double allocationRate = timeAllocatedAccumulator / now;
+
+            Console.WriteLine("Resource " + Name + " AllocationRate " + allocationRate);
+
+            return allocationRate;
         }
     }
 }

@@ -1,34 +1,75 @@
 ﻿using Accord.Statistics.Distributions.Univariate;
 using stochastic_engine.Engine;
+using stochastic_engine.Entities;
 using stochastic_engine.Models;
+using stochastic_engine.Resources;
+using stochastic_engine.Restaurant.Events;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace stochastic_engine.Events
 {
     public class CustomerArrival : Event
     {
-        private Scheduler scheduler;
-        
-        private EntitySet checkoutLine1;
-        private EntitySet checkoutLine2;
+        private readonly Scheduler scheduler;
+        private readonly EntitySet checkoutQueue1;
+        private readonly EntitySet checkoutQueue2;
 
-        private Resource cashier1;
-        private Resource cashier2;
+        private readonly Resource cashier1;
+        private readonly Resource cashier2;
 
-        private double timeLimit;
-        public CustomerArrival(double timeLimit, Scheduler scheduler, string name = "Arrival") : base(name)
+        public CustomerArrival(Scheduler scheduler, EntitySet queue1, EntitySet queue2, 
+            Resource cashier1, Resource cashier2, string name = "Arrival") :
+            base(name)
         {
             this.scheduler = scheduler;
-            this.timeLimit = timeLimit;
+
+            checkoutQueue1 = queue1;
+            checkoutQueue2 = queue2;
+
+            this.cashier1 = cashier1;
+            this.cashier2 = cashier2;
         }
 
-        public void Execute()
+        public override void Execute()
         {
             base.Execute();
 
-            int customers = 1 + (new Random().Next(0,3));
+            int quantityOfCustomers = 1 + (new Random().Next(0, 3));
+
+            Entity Customers = scheduler.CreateEntity(new Customer(
+                quantityOfCustomers + " customers",
+                quantityOfCustomers,
+                scheduler
+                ));
+
+            bool queue1Greater = checkoutQueue1.Entities.Count > checkoutQueue2.Entities.Count;
+
+            if (queue1Greater)
+            {
+                checkoutQueue2.Insert(Customers);
+                scheduler.ScheduleNow(
+                    scheduler.CreateEvent(new CashierService("Cashier Service 2", cashier2, scheduler, checkoutQueue2))
+                    );
+            }
+            else
+            {
+                checkoutQueue1.Insert(Customers);
+                scheduler.ScheduleNow(
+                    scheduler.CreateEvent(new CashierService("Cashier Service 1", cashier1, scheduler, checkoutQueue1))
+                    );
+            }
+
+            if (scheduler.Time < 500)
+            {
+                double eventTime = (new ExponentialDistribution(3).Generate(1)[0]);
+
+                scheduler.ScheduleIn(
+                    scheduler.CreateEvent(
+                        new CustomerArrival(scheduler, checkoutQueue1, checkoutQueue2, cashier1, cashier2)),
+                    eventTime
+                    );
+            }
+
         }
     }
 }

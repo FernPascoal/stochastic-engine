@@ -1,4 +1,5 @@
-﻿using System;
+﻿using stochastic_engine.Engine;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -15,16 +16,19 @@ namespace stochastic_engine.Models
     public class EntitySet
     {
         public string Name { get; }
-        public Guid Id { get; }
+        public Guid Id { get; set; }
         public Mode Mode { get; set; }
-        public int Size { get; }
         public int MaxPossibleSize { get; set; }
+        public double CreationTime { get; set; }
         public Queue<Entity> Entities { get; set; }
+
+        public Scheduler Scheduler { get; set; }
 
         //Coleta de Estatísticas
 
         private readonly List<int> recordedSizes = new List<int>();
         private readonly List<double> recordedTimesInSet = new List<double>();
+
         private bool log = false;
         private double timeGap = 0;
         private double lastLogTime = 0;
@@ -32,12 +36,13 @@ namespace stochastic_engine.Models
 
         private Dictionary<double, int> Log { get; } = new Dictionary<double, int>();
 
-        public EntitySet(string name, Mode mode, int maxPossibleSize, Guid id)
+        public EntitySet(string name, Mode mode, int maxPossibleSize, Scheduler scheduler)
         {
             Name = name;
             Mode = mode;
-            this.MaxPossibleSize = maxPossibleSize;
-            Id = id;
+            MaxPossibleSize = maxPossibleSize;
+            CreationTime = scheduler.Time;
+            Scheduler = scheduler;
             Entities = new Queue<Entity>();
         }
 
@@ -46,46 +51,76 @@ namespace stochastic_engine.Models
             if (!IsFull())
             {
                 Entities.Enqueue(entity);
-            }
 
-            double now = DateTime.Now.ToOADate();
+                List<EntitySet> InsertedSets = entity.InsertedSets;
 
-            if (log && (now - lastLogTime >= timeGap))
+                InsertedSets.Add(this);
+
+                entity.InsertedSets = InsertedSets;
+
+                double now = Scheduler.Time;
+
+                Console.WriteLine("Entity " + entity.Name + " inserted at " + Name +".");
+
+                if (log && (now - lastLogTime >= timeGap))
+                {
+                    lastLogTime = now;
+                    recordedSizes.Add(Entities.Count);
+                    Log.Add(now, Entities.Count);
+                }
+            } else
             {
-                recordedSizes.Add(Entities.Count);
-                lastLogTime = now;
-                Log.Add(now, Entities.Count);
+                Console.WriteLine("Line is full. Entity " + entity.Name + " not inserted.");
             }
         }
 
         public Entity Remove()
         {
-            Entity removedEntity = Entities.Dequeue();
-
-            double now = DateTime.Now.ToOADate();
-
-            if (log && (now - lastLogTime >= timeGap))
+            if (Entities.Count != 0)
             {
-                int size = Entities.Count;
+                Entity removedEntity = Entities.Dequeue();
 
-                double timeSinceEntrance = removedEntity.GetTimeSinceCreation();
+                Console.WriteLine("Entity " + removedEntity.Name +" removed from " + Name);
 
-                recordedTimesInSet.Add(timeSinceEntrance);
-                recordedSizes.Add(size);
+                List<EntitySet> InsertedSets = removedEntity.InsertedSets;
 
-                Log.Add(now, size);
+                InsertedSets.Remove(this);
 
-                if (timeSinceEntrance > MaxTimeInSet)
-                    MaxTimeInSet = timeSinceEntrance;
+                removedEntity.InsertedSets = InsertedSets;
+
+                double now = Scheduler.Time;
+
+                if (log && (now - lastLogTime >= timeGap))
+                {
+                    int size = Entities.Count;
+
+                    double timeSinceEntrance = removedEntity.GetTimeSinceCreation();
+
+                    recordedTimesInSet.Add(timeSinceEntrance);
+                    recordedSizes.Add(size);
+
+                    Log.Add(now, size);
+
+                    if (timeSinceEntrance > MaxTimeInSet)
+                        MaxTimeInSet = timeSinceEntrance;
+                }
+
+                return removedEntity;
             }
-
-            return removedEntity;
+            Console.WriteLine("EntitySet is already empty.");
+            return null;
         }
 
         public Entity RemoveById(Guid id)
         {
             Entity entityToBeRemoved = Entities.Where(entity => entity.Id == id)?.FirstOrDefault();
             Entities = new Queue<Entity>(Entities.Where(x => entityToBeRemoved != x));
+
+            Console.WriteLine("Entity " + entityToBeRemoved.Name + " removed from " + Name);
+
+            double timeSinceEntrance = entityToBeRemoved.GetTimeSinceCreation();
+
+            recordedTimesInSet.Add(timeSinceEntrance);
             recordedSizes.Add(Entities.Count);
             return entityToBeRemoved;
         }

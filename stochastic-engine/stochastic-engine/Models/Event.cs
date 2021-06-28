@@ -5,12 +5,14 @@ namespace stochastic_engine.Models
 {
     public class Event
     {
-        public string Name { get; set; }
+        public string Name { get; }
         public Guid EventId { get; set; }
 
-        private Scheduler Scheduler { get; set; }
-        private EntitySet EntitySet { get; set; }
-        private Resource Resource { get; set; }
+        public double ScheduledTime { get; set; }
+
+        public Scheduler Scheduler { get; set; }
+        public EntitySet EntitySet { get; set; }
+        public Resource Resource { get; set; }
         public bool AlreadyExecuted { get; set; } = false;
 
         public Event(string name)
@@ -25,7 +27,7 @@ namespace stochastic_engine.Models
             Scheduler = scheduler;
         }
 
-        public void Execute()
+        public virtual void Execute()
         {
             AlreadyExecuted = true;
         }
