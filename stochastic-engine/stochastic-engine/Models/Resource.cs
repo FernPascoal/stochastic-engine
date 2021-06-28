@@ -27,7 +27,6 @@ namespace stochastic_engine.Models
         {
             Name = name;
             availableQuantity = quantity;
-            startQuantity = quantity;
             Scheduler = scheduler;
             timeAllocatedAccumulator = 0;
         }
