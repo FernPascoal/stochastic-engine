@@ -1,18 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using stochastic_engine.Engine;
+using System;
 
 namespace stochastic_engine.Models
 {
     public class Event
     {
-        private string name;
-        private Guid eventId;
+        public string Name { get; set; }
+        public Guid EventId { get; set; }
 
-        public Event(string name, Guid eventId)
+        private Scheduler Scheduler { get; set; }
+        private EntitySet EntitySet { get; set; }
+        private Resource Resource { get; set; }
+        public bool AlreadyExecuted { get; set; } = false;
+
+        public Event(string name)
         {
-            this.name = name;
-            this.eventId = eventId;
+            Name = name;
+        }
+
+        public Event(string name, Resource resource, Scheduler scheduler)
+        {
+            Name = name;
+            Resource = resource;
+            Scheduler = scheduler;
+        }
+
+        public void Execute()
+        {
+            AlreadyExecuted = true;
         }
     }
 }

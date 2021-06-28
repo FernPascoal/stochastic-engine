@@ -21,14 +21,14 @@ namespace stochastic_engine.Models
             Priority = -1;
         }
 
-        /*public Entity(string name, Guid id, double creationTime, PetriNet.PetriNet petriNet)
+        public Entity(string name, Guid id, double creationTime, PetriNet petriNet)
         {
             Name = name;
             Id = id;
             CreationTime = creationTime;
             Priority = -1;
             PetriNet = petriNet;
-        }*/
+        }
 
         public double GetTimeSinceCreation()
         {
