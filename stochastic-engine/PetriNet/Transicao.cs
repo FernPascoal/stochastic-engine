@@ -1,5 +1,6 @@
 ﻿using PetriNetProject.Validators;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,6 +10,24 @@ namespace PetriNetProject
 {
     public class Transicao : IConectavel
     {
+        private class PrioritySorterHelper : IComparer
+        {
+            int IComparer.Compare(object a, object b)
+            {
+                Transicao c1 = (Transicao)a;
+                Transicao c2 = (Transicao)b;
+
+                if (c1.Prioridade > c2.Prioridade)
+                    return 1;
+
+                if (c1.Prioridade < c2.Prioridade)
+                    return -1;
+
+                else
+                    return 0;
+            }
+        }
+
         private int _id;
         public int Id { get => _id; set => _id = IdValidator.Validate(value); }
         public string _nome;
@@ -74,5 +93,9 @@ namespace PetriNetProject
         public void ConectarEntrada(Arco arco) => ArcosDeEntrada.Add(arco);
 
         public void ConectarSaida(Arco arco) => ArcosDeSaida.Add(arco);
+        public static IComparer PrioritySorter()
+        {
+            return (IComparer)new PrioritySorterHelper();
+        }
     }
 }
