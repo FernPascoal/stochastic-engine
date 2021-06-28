@@ -196,16 +196,16 @@ namespace PetriNetProject
         {
             var petri = new PetriNet();
 
-            petri.AddLugar(1, "GarçomLivre");
-            petri.AddLugar(2, "SubstituirCaixa");
-            petri.AddLugar(3, "PedidoPronto");
-            petri.AddLugar(4, "ClienteVaiSentar");
-            petri.AddLugar(5, "GarçomNoCaixa");
-            petri.AddLugar(6, "LevandoPedido");
-            petri.AddLugar(7, "HigienizandoMesa");
-            petri.AddLugar(8, "AtendenteVoltou");
-            petri.AddLugar(9, "PedidoEntregue");
-            petri.AddLugar(10, "MesaHigienizada");
+            petri.AddLugar(1, "Garçom");
+            petri.AddLugar(2, "Substituir saixa");
+            petri.AddLugar(3, "Pedido");
+            petri.AddLugar(4, "Cliente indo sentar");
+            petri.AddLugar(5, "Garçom ao caixa");
+            petri.AddLugar(6, "Pedido sendo levado");
+            petri.AddLugar(7, "Mesa sendo higienizada");
+            petri.AddLugar(8, "Atendente retornou");
+            petri.AddLugar(9, "Pedido entregue");
+            petri.AddLugar(10, "Mesa foi higienizada");
 
             petri.AddTransicao(1, "T1");
             petri.AddTransicao(2, "T2");
