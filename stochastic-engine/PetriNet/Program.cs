@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace PetriNet
+namespace PetriNetProject
 {
     class Program
     {

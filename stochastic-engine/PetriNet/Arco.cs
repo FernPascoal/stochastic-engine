@@ -1,11 +1,11 @@
-﻿using PetriNet.Validators;
+﻿using PetriNetProject.Validators;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PetriNet
+namespace PetriNetProject
 {
     public class Arco
     {
@@ -33,11 +33,24 @@ namespace PetriNet
             Nome = nome;
         }
 
+        public Arco(IConectavel entrada, IConectavel saida, int id, string nome, int peso, string tipo)
+        {
+            Entrada = entrada;
+            Saida = saida;
+            Id = id;
+            Nome = nome;
+            Peso = peso;
+            Tipo = tipo;
+        }
+
         public Arco(){ }
 
         public bool IsNormal() => _tipo.Equals("normal");
         public bool IsInhibitor() => _tipo.Equals("inhibitor");
         public bool IsReset() => _tipo.Equals("reset");
+        public Lugar GetLugar() => Entrada.GetType().Equals(typeof(Lugar)) ? (Lugar)Entrada : (Lugar)Saida;
+        public Transicao GetTransicao() => Entrada.GetType().Equals(typeof(Transicao)) ? (Transicao)Entrada : (Transicao)Saida;
+
         public Arco Conectar(IConectavel c1, IConectavel c2)
         {
             try

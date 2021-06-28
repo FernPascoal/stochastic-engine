@@ -6,4 +6,8 @@
     <RootNamespace>stochastic_engine</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\PetriNet\PetriNet.csproj" />
+  </ItemGroup>
+
 </Project>
