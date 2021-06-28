@@ -6,4 +6,12 @@
     <RootNamespace>stochastic_engine</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Accord.Statistics" Version="3.8.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PetriNet\PetriNet.csproj" />
+  </ItemGroup>
+
 </Project>
