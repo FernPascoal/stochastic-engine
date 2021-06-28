@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.31205.134
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "stochastic-engine", "stochastic-engine\stochastic-engine.csproj", "{EC20062C-E7BB-4A08-A463-53395CD2307F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PetriNet", "PetriNet\PetriNet.csproj", "{B98CC360-5558-4DFA-B161-D3E42E58ABD1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PetriNet", "PetriNet\PetriNet.csproj", "{B98CC360-5558-4DFA-B161-D3E42E58ABD1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
